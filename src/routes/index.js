@@ -9,31 +9,45 @@ import DefaultLayout from 'layouts/Default';
 import AppStore from 'stores/App';
 import UserStore from 'stores/User';
 import PageIndexStore from 'stores/PageIndex';
+import PageTestStore from 'stores/PageTest';
 
 export default function (logger, pages) {
+
+    var getApp = (context) => {
+
+        if (context.di.app) {
+            return context.di.app;
+        }
+
+        var store = new Vuex.Store(AppStore(context.di));
+        store.state.di = context.di;
+
+        store.registerModule('user', UserStore((context.di)));
+
+        DefaultLayout.store = store;
+
+        DefaultLayout.components = pages;
+
+        var app = new Vue(DefaultLayout);
+
+        return app;
+    };
 
     return new Router([
         {
             path: '/',
-            action: function () {
+            action: function (context) {
 
                 return new Promise((resolve, reject) => {
-                    var store = new Vuex.Store(AppStore);
-
-                    store.registerModule('user', UserStore);
-                    store.registerModule('page', PageIndexStore);
-
-                    DefaultLayout.store = store;
-
                     var pageName = 'IndexPage';
 
-                    DefaultLayout.components = pages;
+                    var app = getApp(context);
 
-                    // DefaultLayout.components = {
-                    //     [pageName]: pages[pageName]
-                    // };
+                    if (app.$store.getters.hasPageName) {
+                        app.$store.unregisterModule('page');
+                    }
 
-                    var app = new Vue(DefaultLayout);
+                    app.$store.registerModule('page', PageIndexStore(context.di));
 
                     app.$store.dispatch('init', pageName)
                     .then(() => {
@@ -53,23 +67,18 @@ export default function (logger, pages) {
 
         {
             path: '/test',
-            action: function () {
+            action: function (context) {
 
                 return new Promise((resolve, reject) => {
-                    var store = new Vuex.Store(AppStore);
-
-                    store.registerModule('user', UserStore);
-                    store.registerModule('page', PageIndexStore);
-
-                    DefaultLayout.store = store;
-
                     var pageName = 'TestPage';
 
-                    DefaultLayout.components = {
-                        [pageName]: pages[pageName]
-                    };
+                    var app = getApp(context);
 
-                    var app = new Vue(DefaultLayout);
+                    if (app.$store.getters.hasPageName) {
+                        app.$store.unregisterModule('page');
+                    }
+
+                    app.$store.registerModule('page', PageTestStore(context.di));
 
                     app.$store.dispatch('init', pageName)
                     .then(() => {

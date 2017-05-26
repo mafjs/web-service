@@ -3,4 +3,6 @@ div
     h2 login = {{login}}
     h2 count = {{count}}
     p {{text}}
+    a(href="/test", @click="navigate($event)") test
+    br
     button(@click="test") inc

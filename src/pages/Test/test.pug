@@ -1,4 +1,7 @@
 div
     h1 this is test page 
     h2 count = {{count}}
+    a(href="/", @click="navigate($event)") to main
+    p text = {{text}}
+    br
     button(@click="test") inc

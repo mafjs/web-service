@@ -6,6 +6,7 @@ import initHooks from 'app/Backend/init/hooks';
 import initConfig from 'app/Backend/init/config';
 import initShutdown from 'app/Backend/init/shutdown';
 import initRouter from 'routes';
+import initApi from 'api';
 
 import middleware from 'app/Backend/middleware';
 
@@ -17,9 +18,12 @@ var logger = log4js.getLogger('maf-web-service');
 
 var config = initConfig();
 
+var api = initApi(logger, config);
+
 var di = {
     logger,
-    config
+    config,
+    api
 };
 
 var app = express();

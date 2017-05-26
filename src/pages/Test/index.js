@@ -27,7 +27,7 @@ export default require('./test.pug')({
     },
 
     methods: {
-        ...mapActions(['setMeta']),
+        ...mapActions(['setMeta', 'navigate']),
         ...mapActions('user', ['setUser']),
         ...mapActions('page', ['init']),
 

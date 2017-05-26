@@ -2,13 +2,21 @@ import initRouter from 'routes';
 import logger from 'loglevel';
 import Config from 'maf-config';
 import * as History from 'history';
+import * as qs from 'qs';
+
+import initApi from 'api';
 
 var config = new Config();
 
+var api = initApi(logger, config);
+
 var di = {
     logger,
-    config
+    config,
+    api,
+    app: null
 };
+
 
 import IndexPage from 'pages/Index';
 import TestPage from 'pages/Test';
@@ -27,32 +35,25 @@ var context = {
 };
 
 router.resolve(context)
-    .then((vueComponent) => {
-        vueComponent.$mount('._body');
+    .then((app) => {
+        di.app = app;
+        app.$mount('._body');
     })
     .catch((error) => {
         logger.error(error);
     });
 
-var history = History.createBrowserHistory();
 
-history.listen(function (location) {
-
+api.get('history').listen((location) => {
     router.resolve({
-        path: location.pathname,
-        query: location.search
+        path:location.pathname,
+        query: qs.parse(location.search.replace(/^\?/, '')),
+        di: di
+    })
+    .then(() => {
+        logger.info('route done');
+    })
+    .catch((error) => {
+        logger.error(error);
     });
-
-            // .then((a, b, c) => {
-            //     debugger;
-            // })
-            // .catch((error) => {
-            //     debugger;
-            // });
-
 });
-
-
-setTimeout(function () {
-    history.push('/test');
-}, 3000);
